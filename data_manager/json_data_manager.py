@@ -6,7 +6,7 @@ from .data_manager_interface import DataManagerInterface
 
 def validate_user_data(new_user: dict) -> bool:
     """
-    Check if the the new user data is valid
+    Check if  the new user data is valid
     :param
         new_user: (dict)
     :return:
@@ -67,6 +67,35 @@ class JSONDataManager(DataManagerInterface):
 
         return None
 
+    def get_new_movie_id(self, user_id):
+        """
+        Return 1 if there is no data in the file
+        otherwise, return the highest id plus 1
+        :return:
+        """
+        users = self.read_file()
+        if users:
+            return max(movie['movie_id']
+                       for user in users
+                       for movie in user['movies']
+                       if user['user_id'] == user_id) + 1
+        return 1
+
+    def add_user_movie(self,
+                       user_id,
+                       movie_info):
+        users = self.read_file()
+        for user in users:
+            if user['user_id'] == user_id:
+                user['movies'].append({
+                    "movie_id": self.get_new_movie_id(user_id),
+                    "name": movie_info.get('name'),
+                    "director": movie_info.get('director'),
+                    "year": movie_info.get('year'),
+                    "rating": movie_info.get('rating')
+                })
+        self.write_file(users)
+
     def update_user_movie(self, user_id, movies):
         users = self.read_file()
 
@@ -78,7 +107,9 @@ class JSONDataManager(DataManagerInterface):
                     return True
         return None
 
-    def delete_user_movie(self, user_id: int, movie_id: int) -> None | bool:
+    def delete_user_movie(self,
+                          user_id: int,
+                          movie_id: int) -> None | bool:
         movies = self.get_user_movies(user_id)
 
         if movies is not None:

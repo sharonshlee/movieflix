@@ -2,9 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Add Movie</title>
 </head>
 <body>
-
+    <form action="{{ url_for('add_movie', user_id=user_id) }}" method="POST">
+        Name:
+        <input type="text" name="name" id="name">
+        Director:
+        <input type="text" name="director" id="director">
+        Year:
+        <input type="text" name="year" id="year">
+        Rating:
+        <input type="text" name="rating" id="rating">
+        <input type="submit" name="submit_button" value="Add Movie">
+    </form>
 </body>
 </html>

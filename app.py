@@ -1,3 +1,6 @@
+"""
+API routes for users movies app using Flask
+"""
 from typing import Tuple
 
 from flask import Flask, render_template, jsonify, Response, request, url_for, redirect
@@ -91,7 +94,15 @@ def add_movie(user_id: int):
     :param user_id: int
     :return:
     """
-    return render_template('add_movie.html')
+    if request.method == 'POST':
+        movie_info = {'name': request.form.get('name'),
+                      'director': request.form.get('director'),
+                      'year': int(request.form.get('year')),
+                      'rating': float(request.form.get('rating'))
+                      }
+        data_manager.add_user_movie(user_id, movie_info)
+        return redirect(url_for('get_user_movies', user_id=user_id))
+    return render_template('add_movie.html', user_id=user_id)
 
 
 @app.route('/users/<int:user_id>/update_movie/<int:movie_id>')
@@ -137,4 +148,4 @@ def not_found_error(error) -> Tuple[Response, int]:
 
 
 if __name__ == "__main__":
-    app.run(port=5001)
+    app.run(port=5002)

@@ -3,18 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Add Movie</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <form action="{{ url_for('add_movie', user_id=user_id) }}" method="POST">
-        Name:
-        <input type="text" name="name" id="name">
-        Director:
-        <input type="text" name="director" id="director">
-        Year:
-        <input type="text" name="year" id="year">
-        Rating:
-        <input type="text" name="rating" id="rating">
-        <input type="submit" name="submit_button" value="Add Movie">
-    </form>
+    <div class="movie">
+        <h2>Add Movie</h2>
+        <form action="{{ url_for('add_movie', user_id=user_id) }}" method="POST">
+            <table>
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" name="name" id="name"></td>
+                </tr>
+                <tr>
+                    <td>Director:</td>
+                    <td><input type="text" name="director" id="director"></td>
+                </tr>
+                <tr>
+                    <td>Year:</td>
+                    <td><input type="text" name="year" id="year"></td>
+                </tr>
+                <tr>
+                    <td>Rating:</td>
+                    <td><input type="text" name="rating" id="rating"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" name="submit_button" value="Add Movie"></td>
+                </tr>
+            </table>
+        </form>
+    </div>
 </body>
 </html>

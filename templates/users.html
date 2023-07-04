@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Users - MovieWeb App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>Users</h1>
-  <header>
-    {% for user in users %}
-    <ul>
-      <li>
-        <a href="/users/{{ user.user_id }}">{{ user.name }}</a>
-      </li>
-    </ul>
-    {% endfor %}
-  </header>
-
+  <div class="movie">
+    <h1>Users</h1>
+    <header>
+      {% for user in users %}
+      <ul>
+        <li>
+          <a href="/users/{{ user.user_id }}">{{ user.name }}</a>
+        </li>
+      </ul>
+      {% endfor %}
+    </header>
+  </div>
 </body>
 </html>

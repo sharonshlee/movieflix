@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>User Movies - MovieWeb App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>User Movies</h1>
-  <header>
-    <a href="/users/{{ user_id }}/add_movie">Add A Movie</a>
-    {% for movie in user_movies %}
-    <ul>
-      <li>
-        {{ movie.name }}
-        <a href="/users/{{ user_id }}/update_movie/{{ movie.movie_id }}">Update</a>
-        <a href="/users/{{ user_id }}/delete_movie/{{ movie.movie_id }}">Delete</a>
-      </li>
-    </ul>
-    {% endfor %}
-  </header>
-
+  <div class="movie">
+    <h1>User Movies</h1>
+    <header>
+      <a href="/users/{{ user_id }}/add_movie">Add Movie</a>
+      {% for movie in user_movies %}
+      <ul>
+        <li>
+          {{ movie.name }}
+          <a href="/users/{{ user_id }}/update_movie/{{ movie.movie_id }}">Update</a>
+          <a href="/users/{{ user_id }}/delete_movie/{{ movie.movie_id }}">Delete</a>
+        </li>
+      </ul>
+      {% endfor %}
+    </header>
+  </div>
 </body>
 </html>

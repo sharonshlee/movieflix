@@ -2,9 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Update Movie</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
+    <div class="movie">
+        <h2>Update Movie</h2>
+        <form action="{{ url_for('update_movie', user_id=user_id, movie_id=movie_id) }}" method="POST">
+            <table>
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" name="name" id="name" value="{{ movie.name }}"></td>
+                </tr>
+                <tr>
+                    <td>Director:</td>
+                    <td><input type="text" name="director" id="director" value="{{ movie.director }}"></td>
+                </tr>
+                <tr>
+                    <td>Year:</td>
+                    <td><input type="text" name="year" id="year" value="{{ movie.year }}"></td>
+                </tr>
+                <tr>
+                    <td>Rating:</td>
+                    <td><input type="text" name="rating" id="rating" value="{{ movie.rating }}"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" name="submit_button" value="Update Movie"></td>
+                </tr>
+            </table>
+        </form>
+    </div>
 </body>
 </html>

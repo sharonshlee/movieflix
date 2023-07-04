@@ -80,9 +80,17 @@ def add_user():
         if data_manager.add_user(new_user):
             return redirect(url_for('home'))
         else:
-            return bad_request_error('')
+            return bad_request_error('user')
 
     return render_template('add_user.html')
+
+
+def get_movie_info() -> dict:
+    return {'name': request.form.get('name'),
+            'director': request.form.get('director'),
+            'year': int(request.form.get('year')),
+            'rating': float(request.form.get('rating'))
+            }
 
 
 @app.route('/users/<int:user_id>/add_movie', methods=['GET', 'POST'])
@@ -95,17 +103,15 @@ def add_movie(user_id: int):
     :return:
     """
     if request.method == 'POST':
-        movie_info = {'name': request.form.get('name'),
-                      'director': request.form.get('director'),
-                      'year': int(request.form.get('year')),
-                      'rating': float(request.form.get('rating'))
-                      }
-        data_manager.add_user_movie(user_id, movie_info)
+        new_movie_info = get_movie_info()
+
+        if data_manager.add_user_movie(user_id, new_movie_info) is None:
+            return not_found_error('User')
         return redirect(url_for('get_user_movies', user_id=user_id))
     return render_template('add_movie.html', user_id=user_id)
 
 
-@app.route('/users/<int:user_id>/update_movie/<int:movie_id>')
+@app.route('/users/<int:user_id>/update_movie/<int:movie_id>', methods=['GET', 'POST'])
 def update_movie(user_id, movie_id):
     """
     Render update_movie form
@@ -115,7 +121,18 @@ def update_movie(user_id, movie_id):
     :param movie_id: int
     :return:
     """
-    return render_template('update_movie.html')
+    movie = data_manager.get_user_movie(user_id, movie_id)
+
+    if movie is None:
+        return not_found_error('Movie')
+
+    if request.method == 'POST':
+        updated_movie = get_movie_info()
+        if data_manager.update_user_movie(user_id, movie_id, updated_movie) is None:
+            return bad_request_error('movie')
+        return redirect(url_for('get_user_movies', user_id=user_id))
+
+    return render_template('update_movie.html', user_id=user_id, movie=movie)
 
 
 @app.route('/users/<int:user_id>/delete_movie/<int:movie_id>')
@@ -133,8 +150,8 @@ def delete_movie(user_id: int, movie_id: int):
 
 
 @app.errorhandler(400)
-def bad_request_error(_error):
-    return jsonify({"error": "Invalid user data."}), 400
+def bad_request_error(error):
+    return jsonify({"error": f"Invalid {error} data."}), 400
 
 
 @app.errorhandler(404)

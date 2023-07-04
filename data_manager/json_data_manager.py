@@ -50,6 +50,14 @@ class JSONDataManager(DataManagerInterface):
         """
         return self.read_file()
 
+    def get_user_movie(self, user_id, movie_id) -> dict | None:
+        movies = self.get_user_movies(user_id)
+        if movies:
+            for movie in movies:
+                if movie['movie_id'] == movie_id:
+                    return movie
+        return None
+
     def get_user_movies(self, user_id: int) -> List[dict] | None:
         """
         Return a list of movies for a given user
@@ -64,7 +72,6 @@ class JSONDataManager(DataManagerInterface):
             for user in users:
                 if user['user_id'] == user_id:
                     return user['movies']
-
         return None
 
     def get_new_movie_id(self, user_id):
@@ -94,9 +101,9 @@ class JSONDataManager(DataManagerInterface):
                     "year": movie_info.get('year'),
                     "rating": movie_info.get('rating')
                 })
-        self.write_file(users)
+        return self.write_file(users)
 
-    def update_user_movie(self, user_id, movies):
+    def update_user_movies(self, user_id, movies):
         users = self.read_file()
 
         if users is not None:
@@ -105,6 +112,16 @@ class JSONDataManager(DataManagerInterface):
                     user['movies'] = movies
                     self.write_file(users)
                     return True
+        return None
+
+    def update_user_movie(self, user_id, movie_id, updated_movie):
+        movies = self.get_user_movies(user_id)
+
+        if movies is not None:
+            for movie in movies:
+                if movie['movie_id'] == movie_id:
+                    movie.update(updated_movie)
+                    return self.update_user_movies(user_id, movies)
         return None
 
     def delete_user_movie(self,
@@ -116,7 +133,7 @@ class JSONDataManager(DataManagerInterface):
             for movie in movies:
                 if movie['movie_id'] == movie_id:
                     movies.remove(movie)
-                    return self.update_user_movie(user_id, movies)
+                    return self.update_user_movies(user_id, movies)
         return None
 
     def get_new_user_id(self):
@@ -131,9 +148,7 @@ class JSONDataManager(DataManagerInterface):
         return 1
 
     def add_user(self, new_user):
-        if validate_user_data():
+        if validate_user_data(new_user):
             new_user.update({'id': self.get_new_user_id()})
             self.write_file(new_user)
         return None
-
-

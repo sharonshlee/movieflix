@@ -74,34 +74,30 @@ class JSONDataManager(DataManagerInterface):
                     return user['movies']
         return None
 
-    def get_new_movie_id(self, user_id):
+    def get_new_movie_id(self, user_movies: List) -> int:
         """
-        Return 1 if there is no data in the file
-        otherwise, return the highest id plus 1
+        Return 1 if movies is empty
+        otherwise, return the highest movie_id plus 1
+        :param user_movies: List
         :return:
+            new movie id (int) |
+            1 if movies is empty (int)
         """
-        users = self.read_file()
-        if users:
-            return max(movie['movie_id']
-                       for user in users
-                       for movie in user['movies']
-                       if user['user_id'] == user_id) + 1
+        if user_movies:
+            return max(movie['movie_id'] for movie in user_movies) + 1
+
         return 1
 
-    def add_user_movie(self,
-                       user_id,
-                       movie_info):
+    def add_user_movie(self, user_id: int, movie_info: dict) -> bool | None:
         users = self.read_file()
-        for user in users:
-            if user['user_id'] == user_id:
-                user['movies'].append({
-                    "movie_id": self.get_new_movie_id(user_id),
-                    "name": movie_info.get('name'),
-                    "director": movie_info.get('director'),
-                    "year": movie_info.get('year'),
-                    "rating": movie_info.get('rating')
-                })
-        return self.write_file(users)
+        if users:
+            for user in users:
+                if user['user_id'] == user_id:
+                    movie_info.update({"movie_id": self.get_new_movie_id(user['movies'])})
+                    user['movies'].append(movie_info)
+            self.write_file(users)
+            return True
+        return None
 
     def update_user_movies(self, user_id, movies):
         users = self.read_file()
@@ -144,11 +140,15 @@ class JSONDataManager(DataManagerInterface):
         """
         users = self.read_file()
         if users:
-            return max(user['id'] for user in users) + 1
+            return max(user['user_id'] for user in users) + 1
         return 1
 
     def add_user(self, new_user):
         if validate_user_data(new_user):
-            new_user.update({'id': self.get_new_user_id()})
-            self.write_file(new_user)
+            users = self.read_file()
+            if users:
+                new_user.update({'user_id': self.get_new_user_id()})
+                users.append(new_user)
+                self.write_file(users)
+                return True
         return None

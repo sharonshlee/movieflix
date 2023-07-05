@@ -75,17 +75,23 @@ def add_user():
             Render add_user.html page
     """
     if request.method == 'POST':
-        new_user = request.get_json()
+        new_user = {"name": request.form.get('user_name'),
+                    "movies": []}
 
-        if data_manager.add_user(new_user):
-            return redirect(url_for('home'))
-        else:
+        if data_manager.add_user(new_user) is None:
             return bad_request_error('user')
+        return redirect(url_for('list_users'))
 
     return render_template('add_user.html')
 
 
 def get_movie_info() -> dict:
+    """
+    Get new or updated movie info
+    from user form
+    :return:
+        New or updated movie info (dict)
+    """
     return {'name': request.form.get('name'),
             'director': request.form.get('director'),
             'year': int(request.form.get('year')),
@@ -96,15 +102,19 @@ def get_movie_info() -> dict:
 @app.route('/users/<int:user_id>/add_movie', methods=['GET', 'POST'])
 def add_movie(user_id: int):
     """
-    Render add_movie form
-    to add movie
+    Render add_movie form to add movie
     for a given user id
+    Redirect to user_movies page
+    after adding a new user
     :param user_id: int
     :return:
+        GET: render add_movie page
+        POST:
+            redirect to user_movies page |
+            user not found error message
     """
     if request.method == 'POST':
         new_movie_info = get_movie_info()
-
         if data_manager.add_user_movie(user_id, new_movie_info) is None:
             return not_found_error('User')
         return redirect(url_for('get_user_movies', user_id=user_id))
@@ -112,19 +122,19 @@ def add_movie(user_id: int):
 
 
 @app.route('/users/<int:user_id>/update_movie/<int:movie_id>', methods=['GET', 'POST'])
-def update_movie(user_id, movie_id):
+def update_movie(user_id: int, movie_id: int):
     """
-    Render update_movie form
+    -Render update_movie form
     to update a movie
     for a given user id
+    -Redirect to user_movies page
+    after update
     :param user_id: int
     :param movie_id: int
     :return:
+        GET: render update_movie.html | movie not found error message
+        POST: redirect to user_movies page | bad request error message
     """
-    movie = data_manager.get_user_movie(user_id, movie_id)
-
-    if movie is None:
-        return not_found_error('Movie')
 
     if request.method == 'POST':
         updated_movie = get_movie_info()
@@ -132,6 +142,9 @@ def update_movie(user_id, movie_id):
             return bad_request_error('movie')
         return redirect(url_for('get_user_movies', user_id=user_id))
 
+    movie = data_manager.get_user_movie(user_id, movie_id)
+    if movie is None:
+        return not_found_error('Movie')
     return render_template('update_movie.html', user_id=user_id, movie=movie)
 
 
@@ -142,6 +155,8 @@ def delete_movie(user_id: int, movie_id: int):
     :param user_id: int
     :param movie_id: int
     :return:
+        redirect to user_movies page |
+        movie not found error message
     """
     if data_manager.delete_user_movie(user_id, movie_id) is None:
         return not_found_error('Movie')

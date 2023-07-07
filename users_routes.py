@@ -19,7 +19,7 @@ def list_users():
     users = data_manager.get_all_users()
 
     if users is None:
-        return users_bp.page_not_found('')
+        return page_not_found('')
 
     return render_template('users.html', users=users)
 
@@ -41,7 +41,7 @@ def add_user():
                     "movies": []}
 
         if data_manager.add_user(new_user) is None:
-            return users_bp.bad_request_error('')
+            return bad_request_error('')
         return redirect(url_for('users.list_users'))
 
     return render_template('add_user.html')

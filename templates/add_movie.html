@@ -23,7 +23,7 @@
         </header>
         <main>
             <h3>Add Movie</h3>
-            <form action="{{ url_for('add_movie', user_id=user.user_id) }}" method="POST">
+            <form action="{{ url_for('movies.add_movie', user_id=user.user_id) }}" method="POST">
                 <table>
                     <tr>
                         <td>Movie Name:</td>

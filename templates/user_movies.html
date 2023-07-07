@@ -4,22 +4,34 @@
     <meta charset="UTF-8">
     <title>User Movies - MovieWeb App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!--Google fonts    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Roboto&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="movie">
-    <h1>User Movies</h1>
     <header>
-      <a href="/users/{{ user_id }}/add_movie">Add Movie</a>
+      <h1><img src="static/images/logo.png" alt="logo"></h1>
+      <h1>Movieflix</h1>
+      <h2>{{ user.name }}'s Favourite Movies</h2>
+      <a href="/">Home</a> |
+      <a href="/users">Users</a> |
+      <a href="/users/{{ user.user_id }}/add_movie">Add Movie</a>
+      <br>
+      <br>
+    </header>
+    <main>
       {% for movie in user_movies %}
       <ul>
         <li>
           {{ movie.name }}
-          <a href="/users/{{ user_id }}/update_movie/{{ movie.movie_id }}">Update</a>
-          <a href="/users/{{ user_id }}/delete_movie/{{ movie.movie_id }}">Delete</a>
+          <a href="/users/{{ user.user_id }}/update_movie/{{ movie.movie_id }}">Update</a>
+          <a href="/users/{{ user.user_id }}/delete_movie/{{ movie.movie_id }}">Delete</a>
         </li>
       </ul>
       {% endfor %}
-    </header>
+    </main>
   </div>
 </body>
 </html>

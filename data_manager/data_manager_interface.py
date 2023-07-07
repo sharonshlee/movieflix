@@ -25,7 +25,7 @@ class DataManagerInterface(ABC):
         pass
 
     @abstractmethod
-    def get_user_movies(self, user_id: int) -> List[dict]:
+    def get_user_movies(self, user_id: int) -> List[dict] | None:
         """
         Return a list of all movies for a given user
         :param

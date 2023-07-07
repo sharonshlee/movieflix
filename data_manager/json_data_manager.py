@@ -50,6 +50,21 @@ class JSONDataManager(DataManagerInterface):
         """
         return self.read_file()
 
+    def get_user(self, user_id) -> dict | None:
+        """
+        Return the specific user
+        given user_id
+        :return:
+            a user (dict) |
+            None
+        """
+        users = self.read_file()
+        if users:
+            for user in users:
+                if user['user_id'] == user_id:
+                    return user
+        return None
+
     def get_user_movie(self, user_id, movie_id) -> dict | None:
         movies = self.get_user_movies(user_id)
         if movies:
@@ -63,6 +78,7 @@ class JSONDataManager(DataManagerInterface):
         Return a list of movies for a given user
         :param user_id: int
         :return:
+            User's name and
             A user's list of movies dict or
             None
         """

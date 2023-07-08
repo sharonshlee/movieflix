@@ -15,7 +15,9 @@
     <h1>Movieflix</h1>
     <a href="/">Home</a>
     <div class="error">
-        <h2>Invalid Data</h2>
+        {% for error in errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
     </div>
 </div>
 </body>

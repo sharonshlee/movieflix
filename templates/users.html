@@ -21,13 +21,19 @@
       <br>
     </header>
     <main>
-      <ol class="movie-grid">
-      {% for user in users %}
-        <li>
-          <a href="/users/{{ user.user_id }}">{{ user.name }}</a>
-        </li>
-      {% endfor %}
-      </ol>
+        {% if users %}
+          <ol class="movie-grid">
+          {% for user in users %}
+            <li>
+              <a href="/users/{{ user.user_id }}">{{ user.name }}</a>
+            </li>
+          {% endfor %}
+          </ol>
+        {% else %}
+            <div class="error">
+                <p>There are no user yet, add one.</p>
+            </div>
+        {% endif %}
     </main>
   </div>
 </body>

@@ -1,5 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+"""
+Users Blueprint routes page:
+Implementing
+list users
+add user
+routes
+"""
 
+from flask import Blueprint, render_template, request, redirect, url_for, abort
 from data_manager.json_data_manager import JSONDataManager
 
 users_bp = Blueprint('users', __name__)
@@ -17,11 +24,26 @@ def list_users():
         - Bad request error message
     """
     users = data_manager.get_all_users()
-
-    if users is None:
-        return page_not_found('')
-
     return render_template('users.html', users=users)
+
+
+def get_error_messages(user_name: str) -> list:
+    """
+    Validates user inputs and
+    return specific error messages
+    based on user input error
+    :param user_name: str
+    :return:
+        error messages (list)
+    """
+    error_messages = []
+    if len(user_name) == 0:
+        error_messages.append('User name cannot be empty')
+    else:
+        # check first letter is digit or special chars
+        if not user_name[0].isalpha():
+            error_messages.append('User name must start with letter')
+    return error_messages
 
 
 @users_bp.route('/add_user', methods=['GET', 'POST'])
@@ -37,31 +59,17 @@ def add_user():
             Render add_user.html page
     """
     if request.method == 'POST':
-        new_user = {"name": request.form.get('user_name'),
+        user_name = request.form.get('user_name', '')
+
+        error_messages = get_error_messages(user_name)
+        if len(error_messages) != 0:
+            abort(400, error_messages)
+
+        new_user = {"name": user_name,
                     "movies": []}
 
         if data_manager.add_user(new_user) is None:
-            return bad_request_error('')
+            abort(400, ['Invalid user data'])
         return redirect(url_for('users.list_users'))
 
     return render_template('add_user.html')
-
-
-@users_bp.errorhandler(400)
-def bad_request_error(_error):
-    """
-    Handle 400, Bad Request Error
-    returns:
-        Bad request page, 400
-    """
-    return render_template('400.html'), 400
-
-
-@users_bp.errorhandler(404)
-def page_not_found(_error):
-    """
-    Handle 404, Not Found Error
-    returns:
-        Page Not Found page, 404
-    """
-    return render_template('404.html'), 404

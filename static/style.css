@@ -96,6 +96,6 @@ h1 img {
 }
 
 
-.error h2 {
+.error p, .error h2{
     color: red;
 }

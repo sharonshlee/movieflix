@@ -162,9 +162,8 @@ class JSONDataManager(DataManagerInterface):
     def add_user(self, new_user):
         if validate_user_data(new_user):
             users = self.read_file()
-            if users:
-                new_user.update({'user_id': self.get_new_user_id()})
-                users.append(new_user)
-                self.write_file(users)
-                return True
+            new_user.update({'user_id': self.get_new_user_id()})
+            users.append(new_user)
+            self.write_file(users)
+            return True
         return None

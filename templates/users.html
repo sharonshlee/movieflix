@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Users - MovieWeb App</title>
+    <title>Users - Movieflix</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!--Google fonts    -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,22 +12,22 @@
 <body>
   <div class="movie">
     <header>
-      <h1><img src="static/images/logo.png" alt="logo"></h1>
+      <h1><img src="/static/images/logo.png" alt="logo"></h1>
       <h1>Movieflix</h1>
+      <h2>Users</h2>
       <a href="/">Home</a> |
       <a href="/add_user">Add User</a>
       <br>
       <br>
     </header>
     <main>
-      <h3>Users</h3>
+      <ol class="movie-grid">
       {% for user in users %}
-      <ul>
         <li>
           <a href="/users/{{ user.user_id }}">{{ user.name }}</a>
         </li>
-      </ul>
       {% endfor %}
+      </ol>
     </main>
   </div>
 </body>

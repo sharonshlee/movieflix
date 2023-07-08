@@ -63,7 +63,9 @@ def get_new_movie_info() -> dict:
         return {'name': response.get('Title', request.form.get('name')),
                 'director': response.get('Director', ''),
                 'year': int(response.get('Year', 0)),
-                'rating': float(response.get('imdbRating', 0.0))
+                'rating': float(response.get('imdbRating', 0.0)),
+                'poster': response.get('Poster', ''),
+                'website': IMDB_BASE_URL + response.get('imdbID', '')
                 }
     except (requests.exceptions.Timeout,
             requests.exceptions.HTTPError,
@@ -75,7 +77,9 @@ def get_new_movie_info() -> dict:
         return {'name': request.form.get('name'),
                 'director': '',
                 'year': 0,
-                'rating': 0.0
+                'rating': 0.0,
+                'poster': '',
+                'website': ''
                 }
 
 
@@ -178,3 +182,13 @@ def page_not_found(_error):
         Page Not Found page, 404
     """
     return render_template('404.html'), 404
+
+
+@movies_bp.errorhandler(500)
+def page_not_found(_error):
+    """
+    Handle 500, Internal Server Error
+    returns:
+        Internal Server page, 500
+    """
+    return render_template('500.html'), 500

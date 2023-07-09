@@ -27,6 +27,11 @@
           {% for user in users %}
             <li>
               <a href="/users/{{ user.user_id }}">{{ user.name }}</a>
+                <div class="movie-title">
+                    <a href="/users/{{ user.user_id }}/update_user">Update</a>
+                    |
+                    <a href="/users/{{ user.user_id }}/delete_user">Delete</a>
+                </div>
             </li>
           {% endfor %}
           </ol>

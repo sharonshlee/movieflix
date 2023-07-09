@@ -10,8 +10,8 @@ routes
 import requests
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 
-from moviweb_app.data_manager.json_data_manager import JSONDataManager
-from moviweb_app.data_manager.users import Users
+from movieflix.data_manager.json_data_manager import JSONDataManager
+from movieflix.data_manager.users import Users
 
 movies_bp = Blueprint('movies', __name__)
 

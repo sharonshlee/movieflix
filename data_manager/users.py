@@ -4,7 +4,7 @@ Managing Users' CRUD operations
 """
 from typing import List
 
-from moviweb_app.data_manager.data_manager_interface import DataManagerInterface
+from movieflix.data_manager.data_manager_interface import DataManagerInterface
 
 
 class Users:
@@ -12,6 +12,7 @@ class Users:
     Users class
     Implementing Users' CRUD operations
     """
+
     def __init__(self, data_manager: DataManagerInterface):
         self._data_manager = data_manager
 
@@ -57,6 +58,26 @@ class Users:
         if self.__validate_user_data(new_user):
             return self._data_manager.add_item(new_user)
         return None
+
+    def update_user(self, updated_user: dict):
+        """
+        Update a user info
+        :param updated_user: dict
+        :return:
+            True for success update user (bool) |
+            None
+        """
+        return self._data_manager.update_item(updated_user)
+
+    def delete_user(self, user_id: int) -> bool | None:
+        """
+        Delete a user
+        :param user_id: int
+        :return:
+            True for success delete user (bool) |
+            None
+        """
+        return self._data_manager.delete_item(user_id)
 
     def get_user_movies(self, user_id: int) -> list:
         """

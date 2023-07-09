@@ -7,12 +7,14 @@ routes
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, abort
-from data_manager.json_data_manager import JSONDataManager
+
+from moviweb_app.data_manager.json_data_manager import JSONDataManager
+from moviweb_app.data_manager.users import Users
 
 users_bp = Blueprint('users', __name__)
 
-FILEPATH = 'data_manager/movies.json'
-data_manager = JSONDataManager(FILEPATH)
+FILEPATH = 'data/movies.json'
+users_data_manager = Users(JSONDataManager(FILEPATH, 'user_id'))
 
 
 @users_bp.route('/users', methods=['GET'])
@@ -23,7 +25,9 @@ def list_users():
         - Response object containing a list of users
         - Bad request error message
     """
-    users = data_manager.get_all_users()
+    users = users_data_manager.get_all_users()
+    if users is None:
+        abort(404)
     return render_template('users.html', users=users)
 
 
@@ -68,7 +72,7 @@ def add_user():
         new_user = {"name": user_name,
                     "movies": []}
 
-        if data_manager.add_user(new_user) is None:
+        if users_data_manager.add_user(new_user) is None:
             abort(400, ['Invalid user data'])
         return redirect(url_for('users.list_users'))
 

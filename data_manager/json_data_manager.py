@@ -1,30 +1,31 @@
+"""
+JSONDataManager class implemented DataManagerInterface
+for managing data from json file
+"""
 import json
+from abc import ABC
 from typing import List
 
 from .data_manager_interface import DataManagerInterface
 
 
-def validate_user_data(new_user: dict) -> bool:
-    """
-    Check if  the new user data is valid
-    :param
-        new_user: (dict)
-    :return:
-        True if 'name' and 'movies' fields are present
-    """
-    return 'name' in new_user and 'movies' in new_user
-
-
-class JSONDataManager(DataManagerInterface):
+class JSONDataManager(DataManagerInterface, ABC):
     """
     A class for managing data
     to and from a JSON file
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, id_key):
         self.filename = filename
+        self.id_key = id_key
 
-    def read_file(self):
+    def _read_file(self) -> List[dict] | None:
+        """
+        Reading a list of dict from a json file
+        :return:
+            json file content (List[dict]) |
+            None
+        """
         try:
             with open(self.filename, 'r', encoding='utf-8') as file:
                 return json.load(file)
@@ -33,137 +34,85 @@ class JSONDataManager(DataManagerInterface):
         except FileExistsError:
             return None
 
-    def write_file(self, users):
+    def _write_file(self, items: List[dict]) -> bool | None:
+        """
+        Write a list of dict to a json file
+        :param items: List[dict]
+        :return:
+            True for successful written to file (bool)
+            None
+        """
         try:
             with open(self.filename, 'w', encoding='utf-8') as file:
-                json.dump(users, file)
+                json.dump(items, file)
+                return True
         except FileNotFoundError:
             return None
         except FileExistsError:
             return None
 
-    def get_all_users(self):
+    def get_all_data(self) -> List[dict] | None:
         """
-        Return a list of all users
+        Return a list of all data from json file
         :return:
-            A list of dictionaries representing users
+            A list of dictionaries representing all the data
         """
-        return self.read_file()
+        return self._read_file()
 
-    def get_user(self, user_id) -> dict | None:
+    def get_item_by_id(self, item_id) -> dict | None:
         """
-        Return the specific user
-        given user_id
+        Return the specific item
+        given item_id
         :return:
-            a user (dict) |
+            item (dict) |
             None
         """
-        users = self.read_file()
-        if users:
-            for user in users:
-                if user['user_id'] == user_id:
-                    return user
+        items = self._read_file()
+        if items:
+            for item in items:
+                if item[self.id_key] == item_id:
+                    return item
         return None
 
-    def get_user_movie(self, user_id, movie_id) -> dict | None:
-        movies = self.get_user_movies(user_id)
-        if movies:
-            for movie in movies:
-                if movie['movie_id'] == movie_id:
-                    return movie
-        return None
-
-    def get_user_movies(self, user_id: int) -> List[dict] | None:
+    def generate_new_id(self, items: list, key=None) -> int:
         """
-        Return a list of movies for a given user
-        :param user_id: int
+        Return 1 if items is empty
+        otherwise, return the highest id_key plus 1
+        :param items: list
+        :param key: str
         :return:
-            User's name and
-            A user's list of movies dict or
+            new item id (int) |
+            1 if items is empty (int)
+        """
+        if items:
+            return max(item[key or self.id_key] for item in items) + 1
+        return 1
+
+    def add_item(self, new_item: dict) -> bool:
+        """
+        Add new item to json file
+        :param new_item: (dict)
+        :return:
+            Successfully add item, True (bool)
+        """
+        items = self._read_file()
+        new_item.update({self.id_key: self.generate_new_id(items)})
+        items.append(new_item)
+        self._write_file(items)
+        return True
+
+    def update_item(self, updated_item: dict) -> bool | None:
+        """
+        Update item with updated_item
+        :param updated_item: dict
+        :return:
+            True for success update item (bool) |
             None
         """
-        users = self.read_file()
-
-        if users is not None:
-            for user in users:
-                if user['user_id'] == user_id:
-                    return user['movies']
-        return None
-
-    def get_new_movie_id(self, user_movies: List) -> int:
-        """
-        Return 1 if movies is empty
-        otherwise, return the highest movie_id plus 1
-        :param user_movies: List
-        :return:
-            new movie id (int) |
-            1 if movies is empty (int)
-        """
-        if user_movies:
-            return max(movie['movie_id'] for movie in user_movies) + 1
-
-        return 1
-
-    def add_user_movie(self, user_id: int, movie_info: dict) -> bool | None:
-        users = self.read_file()
-        if users:
-            for user in users:
-                if user['user_id'] == user_id:
-                    movie_info.update({"movie_id": self.get_new_movie_id(user['movies'])})
-                    user['movies'].append(movie_info)
-            self.write_file(users)
-            return True
-        return None
-
-    def update_user_movies(self, user_id, movies):
-        users = self.read_file()
-
-        if users is not None:
-            for user in users:
-                if user['user_id'] == user_id:
-                    user['movies'] = movies
-                    self.write_file(users)
-                    return True
-        return None
-
-    def update_user_movie(self, user_id, movie_id, updated_movie):
-        movies = self.get_user_movies(user_id)
-
-        if movies is not None:
-            for movie in movies:
-                if movie['movie_id'] == movie_id:
-                    movie.update(updated_movie)
-                    return self.update_user_movies(user_id, movies)
-        return None
-
-    def delete_user_movie(self,
-                          user_id: int,
-                          movie_id: int) -> None | bool:
-        movies = self.get_user_movies(user_id)
-
-        if movies is not None:
-            for movie in movies:
-                if movie['movie_id'] == movie_id:
-                    movies.remove(movie)
-                    return self.update_user_movies(user_id, movies)
-        return None
-
-    def get_new_user_id(self):
-        """
-        Return 1 if there is no data in the file
-        otherwise, return the highest id plus 1
-        :return:
-        """
-        users = self.read_file()
-        if users:
-            return max(user['user_id'] for user in users) + 1
-        return 1
-
-    def add_user(self, new_user):
-        if validate_user_data(new_user):
-            users = self.read_file()
-            new_user.update({'user_id': self.get_new_user_id()})
-            users.append(new_user)
-            self.write_file(users)
-            return True
+        items = self._read_file()
+        for item in items:
+            if item[self.id_key] == updated_item[self.id_key]:
+                item.update(updated_item)
+                self._write_file(items)
+                return True
         return None

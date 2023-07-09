@@ -9,12 +9,14 @@ routes
 """
 import requests
 from flask import Blueprint, render_template, request, redirect, url_for, abort
-from data_manager.json_data_manager import JSONDataManager
+
+from moviweb_app.data_manager.json_data_manager import JSONDataManager
+from moviweb_app.data_manager.users import Users
 
 movies_bp = Blueprint('movies', __name__)
 
-FILEPATH = 'data_manager/movies.json'
-data_manager = JSONDataManager(FILEPATH)
+FILEPATH = 'data/movies.json'
+users_data_manager = Users(JSONDataManager(FILEPATH, 'user_id'))
 
 API_KEY = 'Your_API_KEY'
 BASE_URL_KEY = f'http://www.omdbapi.com/?apikey={API_KEY}'
@@ -34,8 +36,8 @@ def get_user_movies(user_id: int):
             arguments
         User not found error message
     """
-    user = data_manager.get_user(user_id)
-    user_movies = data_manager.get_user_movies(user_id)
+    user = users_data_manager.get_user(user_id)
+    user_movies = users_data_manager.get_user_movies(user_id)
 
     if user_movies is None or user is None:
         abort(404)
@@ -98,6 +100,39 @@ def get_error_messages(movie_info: dict) -> list:
     return error_messages
 
 
+def format_movie_info(response: dict, movie_name: str) -> dict:
+    """
+    Format movie info
+    :param response: dict
+    :param movie_name: str
+    :return:
+        movie info (dict)
+    """
+    return {'name': response.get('Title', movie_name),
+            'director': response.get('Director', ''),
+            'year': int(response.get('Year', 0)),
+            'rating': float(response.get('imdbRating', 0.0)),
+            'poster': response.get('Poster', ''),
+            'website': IMDB_BASE_URL + response.get('imdbID', '')
+            }
+
+
+def get_empty_info(movie_name: str) -> dict:
+    """
+    Return empty movie info
+    :param movie_name: str
+    :return:
+        empty movie info (dict)
+    """
+    return {'name': movie_name,
+            'director': '',
+            'year': 0,
+            'rating': 0.0,
+            'poster': '',
+            'website': ''
+            }
+
+
 def get_new_movie_info() -> dict:
     """
     Get new movie info:
@@ -115,13 +150,8 @@ def get_new_movie_info() -> dict:
 
     try:
         response = fetch_movie_api_response(movie_name)
-        return {'name': response.get('Title', movie_name),
-                'director': response.get('Director', ''),
-                'year': int(response.get('Year', 0)),
-                'rating': float(response.get('imdbRating', 0.0)),
-                'poster': response.get('Poster', ''),
-                'website': IMDB_BASE_URL + response.get('imdbID', '')
-                }
+        return format_movie_info(response, movie_name)
+
     except (requests.exceptions.Timeout,
             requests.exceptions.HTTPError,
             requests.exceptions.ConnectionError,
@@ -129,13 +159,7 @@ def get_new_movie_info() -> dict:
         print("Request error. "
               "Check your internet connection "
               "and make sure the website is accessible.")
-        return {'name': movie_name,
-                'director': '',
-                'year': 0,
-                'rating': 0.0,
-                'poster': '',
-                'website': ''
-                }
+        return get_empty_info(movie_name)
 
 
 @movies_bp.route('/users/<int:user_id>/add_movie', methods=['GET', 'POST'])
@@ -152,10 +176,12 @@ def add_movie(user_id: int):
             redirect to user_movies page |
             user not found error message
     """
-    user = data_manager.get_user(user_id)
+    user = users_data_manager.get_user(user_id)
+    if user is None:
+        abort(404)
 
     if request.method == 'POST':
-        if data_manager.add_user_movie(user_id, get_new_movie_info()) is None:
+        if users_data_manager.add_user_movie(user_id, get_new_movie_info()) is None:
             abort(404)
         return redirect(url_for('movies.get_user_movies', user_id=user_id))
     return render_template('add_movie.html', user=user)
@@ -233,12 +259,14 @@ def update_movie(user_id: int, movie_id: int):
     """
 
     if request.method == 'POST':
-        if data_manager.update_user_movie(user_id, movie_id, get_updated_movie_info()) is None:
+        if users_data_manager.update_user_movie(user_id,
+                                                movie_id,
+                                                get_updated_movie_info()) is None:
             abort(400, ['No such movie'])
         return redirect(url_for('movies.get_user_movies', user_id=user_id))
 
-    user = data_manager.get_user(user_id)
-    movie = data_manager.get_user_movie(user_id, movie_id)
+    user = users_data_manager.get_user(user_id)
+    movie = users_data_manager.get_user_movie(user_id, movie_id)
 
     if movie is None or user is None:
         abort(404)
@@ -255,7 +283,7 @@ def delete_movie(user_id: int, movie_id: int):
         redirect to user_movies page |
         movie not found error message
     """
-    if data_manager.delete_user_movie(user_id, movie_id) is None:
+    if users_data_manager.delete_user_movie(user_id, movie_id) is None:
         abort(404)
 
     return redirect(url_for('movies.get_user_movies', user_id=user_id))

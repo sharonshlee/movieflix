@@ -110,7 +110,7 @@ def format_movie_info(response: dict, movie_name: str) -> dict:
     """
     return {'name': response.get('Title', movie_name),
             'director': response.get('Director', ''),
-            'year': int(response.get('Year', 0)),
+            'year': int(response.get('Year', '0000')[:4]),
             'rating': float(response.get('imdbRating', 0.0)),
             'poster': response.get('Poster', ''),
             'website': IMDB_BASE_URL + response.get('imdbID', '')

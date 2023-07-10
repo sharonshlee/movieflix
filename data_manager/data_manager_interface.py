@@ -64,3 +64,13 @@ class DataManagerInterface(ABC):
             True for success update item (bool) |
             None
         """
+
+    @abstractmethod
+    def delete_item(self, item_id: int) -> bool | None:
+        """
+        Delete an item based on item_id
+        :param item_id: int
+        :return:
+            True for success delete item (bool) |
+            None
+        """

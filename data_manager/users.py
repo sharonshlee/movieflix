@@ -12,7 +12,6 @@ class Users:
     Users class
     Implementing Users' CRUD operations
     """
-
     def __init__(self, data_manager: DataManagerInterface):
         self._data_manager = data_manager
 
@@ -79,14 +78,17 @@ class Users:
         """
         return self._data_manager.delete_item(user_id)
 
-    def get_user_movies(self, user_id: int) -> list:
+    def get_user_movies(self, user_id: int) -> list | None:
         """
         Return a list of movies for a given user id
         :param user_id: int
         :return:
             A user's list of movies
         """
-        return self.get_user(user_id)['movies']
+        user = self.get_user(user_id)
+        if user:
+            return user['movies']
+        return None
 
     def get_user_movie(self, user_id: int, movie_id: int) -> dict | None:
         """
